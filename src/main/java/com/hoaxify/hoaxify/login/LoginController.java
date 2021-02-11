@@ -16,7 +16,7 @@ import java.util.Map;
 public class LoginController {
 
     @PostMapping("/api/1.0/login")
-    Map<String, Object> handleLogin(@CurrentUser User loggedInUser) {
-        return Collections.singletonMap("id", loggedInUser.getId());
+    User handleLogin(@CurrentUser User loggedInUser) {
+        return loggedInUser;
     }
 }
