@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -36,6 +37,9 @@ public class UserControllerTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    UserService userService;
 
     @Before
     public void cleanup() {
@@ -274,6 +278,16 @@ public class UserControllerTest {
         assertThat(response.getBody().getNumber()).isEqualTo(0);
     }
 
+    @Test
+    public void getUsers_whenUserLoggedIn_receivePageWithoutLoggedInUser() {
+        userService.save(TestUtil.createValidUser("user1"));
+        userService.save(TestUtil.createValidUser("user2"));
+        userService.save(TestUtil.createValidUser("user3"));
+        authenticate("user1");
+        ResponseEntity<TestPage<Object>> response = getUsers(new ParameterizedTypeReference<TestPage<Object>>(){});
+        assertThat(response.getBody().getTotalElements()).isEqualTo(2);
+    }
+
     public <T> ResponseEntity<T> postSignup(Object request, Class<T> response) {
         return testRestTemplate.postForEntity(API_1_0_USERS, request, response);
     }
@@ -284,5 +298,9 @@ public class UserControllerTest {
 
     public <T> ResponseEntity<T> getUsers(String path, ParameterizedTypeReference<T> responseType) {
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
+    private void authenticate(String username) {
+        testRestTemplate.getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor(username, "P4ssword"));
     }
 }
