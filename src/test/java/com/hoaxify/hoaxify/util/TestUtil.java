@@ -10,4 +10,10 @@ public class TestUtil {
         user.setPassword("P4ssword");
         return user;
     }
+
+    public static User createValidUser(String username) {
+        User user = createValidUser();
+        user.setUsername(username);
+        return user;
+    }
 }
