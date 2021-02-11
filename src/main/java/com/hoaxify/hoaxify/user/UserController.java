@@ -2,6 +2,7 @@ package com.hoaxify.hoaxify.user;
 
 import com.hoaxify.hoaxify.error.ApiError;
 import com.hoaxify.hoaxify.shared.GenereicResponse;
+import com.hoaxify.hoaxify.user.vm.UserVM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -29,8 +30,8 @@ public class UserController {
     }
 
     @GetMapping
-    Page<?> getUsers() {
-        return userService.getUsers();
+    Page<UserVM> getUsers() {
+        return userService.getUsers().map(UserVM::new);
     }
 
 
