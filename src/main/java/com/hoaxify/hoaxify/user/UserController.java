@@ -3,6 +3,7 @@ package com.hoaxify.hoaxify.user;
 import com.hoaxify.hoaxify.error.ApiError;
 import com.hoaxify.hoaxify.shared.GenereicResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -21,11 +22,17 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @PostMapping("")
+    @PostMapping
     public GenereicResponse createUser(@Valid @RequestBody User user) {
         userService.save(user);
         return new GenereicResponse("User saved");
     }
+
+    @GetMapping
+    Page<?> getUsers() {
+        return userService.getUsers();
+    }
+
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
