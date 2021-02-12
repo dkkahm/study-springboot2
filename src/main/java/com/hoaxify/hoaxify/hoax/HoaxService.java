@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.nio.channels.FileChannel;
 import java.util.Date;
 
 @Service
@@ -32,5 +33,9 @@ public class HoaxService {
     public Page<Hoax> getHoaxesOfUser(String username, Pageable pageable) {
         User inDB = userService.getByUsername(username);
         return hoaxRepository.findByUser(inDB, pageable);
+    }
+
+    public Page<Hoax> getOldHoaxes(long id, Pageable pageable) {
+        return hoaxRepository.findByIdLessThan(id, pageable);
     }
 }
