@@ -1,4 +1,8 @@
 spring:
+  profiles:
+    active:
+      - prod
+      - dev
   datasource:
     generate-unique-name: false
   h2:
@@ -16,5 +20,28 @@ spring:
       pageable:
         default-page-size: 10
         max-page-size: 100
+---
+spring:
+  profiles: prod
+  datasource:
+    url: jdbc:h2:./hoxify-prod
+  jpa:
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: false
+hoaxify:
+  upload-path: uploads-prod
+---
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:h2:mem:hoxify-dev
+hoaxify:
+  upload-path: uploads-dev
+---
+spring:
+  profiles: test
 hoaxify:
   upload-path: uploads-test
