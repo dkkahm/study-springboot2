@@ -1,6 +1,7 @@
 package com.hoaxify.hoaxify.user;
 
 import com.hoaxify.hoaxify.error.NotFoundException;
+import com.hoaxify.hoaxify.file.FileService;
 import com.hoaxify.hoaxify.user.vm.UserUpdateVM;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -16,10 +18,13 @@ public class UserService {
 
     PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    FileService fileService;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, FileService fileService) {
         super();
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.fileService = fileService;
     }
 
     public User save(User user) {
@@ -45,8 +50,15 @@ public class UserService {
     public User update(long id, UserUpdateVM userUpdate) {
         User inDB = userRepository.getOne(id);
         inDB.setDisplayName(userUpdate.getDisplayName());
-        String savedImageName = inDB.getUsername() + UUID.randomUUID().toString().replaceAll("-", "");
-        inDB.setImage(savedImageName);
+        if(userUpdate.getImage() != null) {
+            String savedImageName = null;
+            try {
+                savedImageName = fileService.saveProfileImage(userUpdate.getImage());
+                inDB.setImage(savedImageName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return userRepository.save(inDB);
     }
 }

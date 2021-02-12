@@ -1,11 +1,13 @@
 package com.hoaxify.hoaxify.user;
 
+import com.hoaxify.hoaxify.configuration.AppConfiguration;
 import com.hoaxify.hoaxify.error.ApiError;
 import com.hoaxify.hoaxify.shared.GenereicResponse;
 import com.hoaxify.hoaxify.user.vm.UserUpdateVM;
 import com.hoaxify.hoaxify.user.vm.UserVM;
 import com.hoaxify.hoaxify.util.TestUtil;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
@@ -48,10 +51,19 @@ public class UserControllerTest {
     @Autowired
     UserService userService;
 
+    @Autowired
+    AppConfiguration appConfiguration;
+
     @BeforeEach
     public void cleanup() {
         userRepository.deleteAll();
         testRestTemplate.getRestTemplate().getInterceptors().clear();
+    }
+
+    @AfterEach
+    public void cleanupDirectory() throws IOException {
+        FileUtils.cleanDirectory(new File(appConfiguration.getFullProfileImagesPath()));
+        FileUtils.cleanDirectory(new File(appConfiguration.getFullAttachmentPath()));
     }
 
     @Test
@@ -400,19 +412,31 @@ public class UserControllerTest {
     public void putUser_withValidRequestBodyWithSupportedImageFromAuthorizedUser_receiveUserVMWithRandomImageName() throws IOException {
         User user = userService.save(TestUtil.createValidUser("user1"));
         authenticate("user1");
-
-        ClassPathResource imageResource = new ClassPathResource("profile.png");
-
         UserUpdateVM updatedUser = TestUtil.createValidUserUpdateVM();
-
-        byte[] imageArr = FileUtils.readFileToByteArray(imageResource.getFile());
-        String imageString = Base64.getEncoder().encodeToString(imageArr);
-
+        String imageString = readFileToBase64("profile.png");
         updatedUser.setImage(imageString);
 
         HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updatedUser);
         ResponseEntity<UserVM> response = putUser(user.getId(), requestEntity, UserVM.class);
-        assertThat(response.getBody().getImage()).isNotEqualTo("profile-image.png");
+        assertThat(response.getBody().getImage()).isNotEqualTo("profile.png");
+    }
+
+    @Test
+    public void putUser_withValidRequestBodyWithSupportedImageFromAuthorizedUser_imageIsStoredUnderProfileFolder() throws IOException {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        UserUpdateVM updatedUser = TestUtil.createValidUserUpdateVM();
+        String imageString = readFileToBase64("profile.png");
+        updatedUser.setImage(imageString);
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updatedUser);
+        ResponseEntity<UserVM> response = putUser(user.getId(), requestEntity, UserVM.class);
+
+        String storedImageName = response.getBody().getImage();
+        String profilePicturePath = appConfiguration.getFullProfileImagesPath() + "/" + storedImageName;
+
+        File storedImage = new File(profilePicturePath);
+        assertThat(storedImage.exists()).isTrue();
     }
 
     public <T> ResponseEntity<T> postSignup(Object request, Class<T> response) {
@@ -439,5 +463,12 @@ public class UserControllerTest {
 
     private void authenticate(String username) {
         testRestTemplate.getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor(username, "P4ssword"));
+    }
+
+    private String readFileToBase64(String fileName) throws IOException {
+        ClassPathResource imageResource = new ClassPathResource(fileName);
+        byte[] imageArr = FileUtils.readFileToByteArray(imageResource.getFile());
+        String imageString = Base64.getEncoder().encodeToString(imageArr);
+        return imageString;
     }
 }
