@@ -22,37 +22,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/1.0/users")
+@RequestMapping("/api/1.0")
 public class UserController {
 
     @Autowired
     UserService userService;
 
-    @PostMapping
+    @PostMapping("/users")
     public GenereicResponse createUser(@Valid @RequestBody User user) {
         userService.save(user);
         return new GenereicResponse("User saved");
     }
 
-    @GetMapping
+    @GetMapping("/users")
     Page<UserVM> getUsers(@CurrentUser User loggedInUser, Pageable pageable) {
         return userService.getUsers(loggedInUser, pageable).map(UserVM::new);
     }
 
-    @GetMapping("/{username}")
+    @GetMapping("/users/{username}")
     UserVM getUserByName(@PathVariable String username) {
         User user = userService.getByUsername(username);
         return new UserVM(user);
     }
 
-    @PutMapping("/{id:[0-9]+}")
+    @PutMapping("/users/{id:[0-9]+}")
     @PreAuthorize("#id == principal.id")
     UserVM updateUser(@PathVariable long id, @Valid @RequestBody(required = false) UserUpdateVM userUpdate) {
         User user = userService.update(id, userUpdate);
         return new UserVM(user);
     }
-
-
-
-
 }
