@@ -37,6 +37,12 @@ public class UserController {
         return userService.getUsers(loggedInUser, pageable).map(UserVM::new);
     }
 
+    @GetMapping("/{username}")
+    UserVM getUserByName(@PathVariable String username) {
+        User user = userService.getByUsername(username);
+        return new UserVM(user);
+    }
+
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)

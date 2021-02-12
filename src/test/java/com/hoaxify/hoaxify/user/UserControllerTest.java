@@ -2,6 +2,7 @@ package com.hoaxify.hoaxify.user;
 
 import com.hoaxify.hoaxify.error.ApiError;
 import com.hoaxify.hoaxify.shared.GenereicResponse;
+import com.hoaxify.hoaxify.user.vm.UserVM;
 import com.hoaxify.hoaxify.util.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -289,6 +290,36 @@ public class UserControllerTest {
         assertThat(response.getBody().getTotalElements()).isEqualTo(2);
     }
 
+    @Test
+    public void getUserByUsername_whenUserExist_receiveOk() {
+        String username = "test-user";
+        userService.save(TestUtil.createValidUser(username));
+        ResponseEntity<Object> response = getUser(username, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void getUserByUsername_whenUserExist_receiveUserWithoutPassword() {
+        String username = "test-user";
+        userService.save(TestUtil.createValidUser(username));
+        ResponseEntity<String> response = getUser(username, String.class);
+        assertThat(response.getBody().contains("password")).isFalse();
+    }
+
+    @Test
+    public void getUserByUsername_whenUserDoesNotExist_receiveNotFound() {
+        String username = "unknown-user";
+        ResponseEntity<Object> response = getUser(username, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    public void getUserByUsername_whenUserDoesNotExist_receiveApiError() {
+        String username = "unknown-user";
+        ResponseEntity<ApiError> response = getUser(username, ApiError.class);
+        assertThat(response.getBody().getMessage().contains(username)).isTrue();
+    }
+
     public <T> ResponseEntity<T> postSignup(Object request, Class<T> response) {
         return testRestTemplate.postForEntity(API_1_0_USERS, request, response);
     }
@@ -299,6 +330,11 @@ public class UserControllerTest {
 
     public <T> ResponseEntity<T> getUsers(String path, ParameterizedTypeReference<T> responseType) {
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
+    public <T> ResponseEntity<T> getUser(String username, Class<T> responseType) {
+        String path = API_1_0_USERS + "/" + username;
+        return testRestTemplate.getForEntity(path, responseType);
     }
 
     private void authenticate(String username) {
