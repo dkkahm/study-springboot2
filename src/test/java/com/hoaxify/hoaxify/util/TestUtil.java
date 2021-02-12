@@ -1,5 +1,6 @@
 package com.hoaxify.hoaxify.util;
 
+import com.hoaxify.hoaxify.hoax.Hoax;
 import com.hoaxify.hoaxify.user.User;
 import com.hoaxify.hoaxify.user.vm.UserUpdateVM;
 
@@ -22,5 +23,11 @@ public class TestUtil {
         UserUpdateVM updatedUser = new UserUpdateVM();
         updatedUser.setDisplayName("newDisplayName");
         return updatedUser;
+    }
+
+    public static Hoax createValidHoax() {
+        Hoax hoax = new Hoax();
+        hoax.setContent("test-content for the test hoax");
+        return hoax;
     }
 }
