@@ -1,6 +1,7 @@
 package com.hoaxify.hoaxify.hoax;
 
 import com.hoaxify.hoaxify.error.ApiError;
+import com.hoaxify.hoaxify.hoax.vm.HoaxVM;
 import com.hoaxify.hoaxify.shared.CurrentUser;
 import com.hoaxify.hoaxify.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +25,12 @@ public class HoaxController {
     HoaxService hoaxService;
 
     @PostMapping
-    public void postHoax(@Valid @RequestBody Hoax hoax, @CurrentUser User user) {
-        hoaxService.save(user, hoax);
+    public HoaxVM postHoax(@Valid @RequestBody Hoax hoax, @CurrentUser User user) {
+        return new HoaxVM(hoaxService.save(user, hoax));
     }
 
     @GetMapping
-    public Page<Hoax> getHoaxes(Pageable pageable) {
-        return hoaxService.getAllHoaxes(pageable);
+    public Page<HoaxVM> getHoaxes(Pageable pageable) {
+        return hoaxService.getAllHoaxes(pageable).map(HoaxVM::new);
     }
 }
