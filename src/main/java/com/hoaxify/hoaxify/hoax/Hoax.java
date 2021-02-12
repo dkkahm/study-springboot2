@@ -1,5 +1,6 @@
 package com.hoaxify.hoaxify.hoax;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hoaxify.hoaxify.user.User;
 import lombok.Data;
 
@@ -24,5 +25,6 @@ public class Hoax {
     private Date timestamp;
 
     @ManyToOne
-    private User user;
+    @JsonIgnore
+     private User user;
 }

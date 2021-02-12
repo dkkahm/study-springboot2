@@ -4,6 +4,8 @@ import com.hoaxify.hoaxify.error.ApiError;
 import com.hoaxify.hoaxify.shared.CurrentUser;
 import com.hoaxify.hoaxify.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -24,5 +26,10 @@ public class HoaxController {
     @PostMapping
     public void postHoax(@Valid @RequestBody Hoax hoax, @CurrentUser User user) {
         hoaxService.save(user, hoax);
+    }
+
+    @GetMapping
+    public Page<Hoax> getHoaxes(Pageable pageable) {
+        return hoaxService.getAllHoaxes(pageable);
     }
 }
