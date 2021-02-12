@@ -2,6 +2,7 @@ package com.hoaxify.hoaxify.user;
 
 import com.hoaxify.hoaxify.error.ApiError;
 import com.hoaxify.hoaxify.shared.GenereicResponse;
+import com.hoaxify.hoaxify.user.vm.UserUpdateVM;
 import com.hoaxify.hoaxify.user.vm.UserVM;
 import com.hoaxify.hoaxify.util.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -351,6 +352,44 @@ public class UserControllerTest {
         long anotherUserId = user.getId() + 123;
         ResponseEntity<ApiError> response = putUser(anotherUserId, null, ApiError.class);
         assertThat(response.getBody().getUrl()).contains("users/" + anotherUserId);
+    }
+
+    @Test
+    public void putUser_whenValidRequestFromAuthorizedUser_receiveOk() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        UserUpdateVM updatedUser = TestUtil.createValidUserUpdateVM();
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updatedUser);
+        ResponseEntity<Object> response = putUser(user.getId(), requestEntity, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void putUser_whenValidRequestFromAuthorizedUser_displayNameUpdated() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        UserUpdateVM updatedUser = TestUtil.createValidUserUpdateVM();
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updatedUser);
+        putUser(user.getId(), requestEntity, Object.class);
+
+        User userInDB = userRepository.findByUsername(user.getUsername());
+        assertThat(userInDB.getDisplayName()).isEqualTo(updatedUser.getDisplayName());
+    }
+
+    @Test
+    public void putUser_whenValidRequestFromAuthorizedUser_receiveUserVMWithUpdatedDisplayName() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        UserUpdateVM updatedUser = TestUtil.createValidUserUpdateVM();
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updatedUser);
+        ResponseEntity<UserVM> response = putUser(user.getId(), requestEntity, UserVM.class);
+        assertThat(response.getBody().getDisplayName()).isEqualTo(updatedUser.getDisplayName());
     }
 
     public <T> ResponseEntity<T> postSignup(Object request, Class<T> response) {
