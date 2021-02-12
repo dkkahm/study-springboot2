@@ -38,7 +38,7 @@ public class User implements UserDetails {
 
     String image;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Hoax> hoaxes;
 
     @Override
