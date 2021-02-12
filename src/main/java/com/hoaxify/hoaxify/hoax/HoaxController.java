@@ -1,6 +1,8 @@
 package com.hoaxify.hoaxify.hoax;
 
 import com.hoaxify.hoaxify.error.ApiError;
+import com.hoaxify.hoaxify.shared.CurrentUser;
+import com.hoaxify.hoaxify.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -20,7 +22,7 @@ public class HoaxController {
     HoaxService hoaxService;
 
     @PostMapping
-    public void postHoax(@Valid @RequestBody Hoax hoax) {
-        hoaxService.save(hoax);
+    public void postHoax(@Valid @RequestBody Hoax hoax, @CurrentUser User user) {
+        hoaxService.save(user, hoax);
     }
 }

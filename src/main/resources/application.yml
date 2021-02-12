@@ -1,7 +1,6 @@
 spring:
   profiles:
     active:
-      - prod
       - dev
   datasource:
     generate-unique-name: false

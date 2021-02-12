@@ -1,6 +1,7 @@
 package com.hoaxify.hoaxify.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hoaxify.hoaxify.hoax.Hoax;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -35,6 +37,9 @@ public class User implements UserDetails {
     private String password;
 
     String image;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<Hoax> hoaxes;
 
     @Override
     @Transient

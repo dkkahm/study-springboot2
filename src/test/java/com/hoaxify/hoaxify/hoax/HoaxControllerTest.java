@@ -1,6 +1,7 @@
 package com.hoaxify.hoaxify.hoax;
 
 import com.hoaxify.hoaxify.error.ApiError;
+import com.hoaxify.hoaxify.user.User;
 import com.hoaxify.hoaxify.user.UserRepository;
 import com.hoaxify.hoaxify.user.UserService;
 import com.hoaxify.hoaxify.util.TestUtil;
@@ -17,6 +18,7 @@ import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.transaction.Transactional;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -44,7 +46,7 @@ public class HoaxControllerTest {
     @BeforeEach
     public void cleanup() {
         userRepository.deleteAll();
-        hoaxRepository.deleteAll();
+        // hoaxRepository.deleteAll();
         testRestTemplate.getRestTemplate().getInterceptors().clear();
     }
 
@@ -144,6 +146,29 @@ public class HoaxControllerTest {
         ResponseEntity<ApiError> response = postHoax(hoax, ApiError.class);
         Map<String, String> validationErrors = response.getBody().getValidationErrors();
         assertThat(validationErrors.get("content")).isNotNull();
+    }
+
+    @Test
+    public void postHoax_whenHoaxIsValidAndUserIsAuthorized_hoaxSavedWithAuthenticatedUserInfo() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        Hoax hoax = TestUtil.createValidHoax();
+        postHoax(hoax, Object.class);
+
+        Hoax inDB = hoaxRepository.findAll().get(0);
+
+        assertThat(inDB.getUser().getUsername()).isEqualTo("user1");
+    }
+
+    @Test
+    public void postHoax_whenHoaxIsValidAndUserIsAuthorized_hoaxCanBeAccessedFromUserEntity() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        Hoax hoax = TestUtil.createValidHoax();
+        postHoax(hoax, Object.class);
+
+        User inDBUser = userRepository.findByUsername("user1");
+        assertThat(inDBUser.getHoaxes().size()).isEqualTo(1);
     }
 
     private <T> ResponseEntity<T> postHoax(Hoax hoax, Class<T> responseType) {
