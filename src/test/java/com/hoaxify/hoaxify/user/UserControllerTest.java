@@ -439,6 +439,42 @@ public class UserControllerTest {
         assertThat(storedImage.exists()).isTrue();
     }
 
+    @Test
+    public void putUser_withInvalidRequestBodyWithNullDisplayNameFromAuthorizedUser_returnBadRequest() throws IOException {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        UserUpdateVM updatedUser = new UserUpdateVM();
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updatedUser);
+        ResponseEntity<Object> response = putUser(user.getId(), requestEntity, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void putUser_withInvalidRequestBodyWithLessThanMiniumSizeDisplayNameFromAuthorizedUser_returnBadRequest() throws IOException {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        UserUpdateVM updatedUser = new UserUpdateVM();
+        updatedUser.setDisplayName("abc");
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updatedUser);
+        ResponseEntity<Object> response = putUser(user.getId(), requestEntity, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void putUser_withInvalidRequestBodyWithMoreThanMaximumSizeDisplayNameFromAuthorizedUser_returnBadRequest() throws IOException {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        UserUpdateVM updatedUser = new UserUpdateVM();
+        String valueOf256Chars = IntStream.rangeClosed(1, 256).mapToObj(x -> "a").collect(Collectors.joining());
+        updatedUser.setDisplayName(valueOf256Chars);
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updatedUser);
+        ResponseEntity<Object> response = putUser(user.getId(), requestEntity, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
     public <T> ResponseEntity<T> postSignup(Object request, Class<T> response) {
         return testRestTemplate.postForEntity(API_1_0_USERS, request, response);
     }
