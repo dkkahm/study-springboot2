@@ -34,9 +34,13 @@ public class HoaxControllerTest {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    HoaxRepository hoaxRepository;
+
     @BeforeEach
     public void cleanup() {
         userRepository.deleteAll();
+        hoaxRepository.deleteAll();
         testRestTemplate.getRestTemplate().getInterceptors().clear();
     }
 
@@ -61,6 +65,28 @@ public class HoaxControllerTest {
         Hoax hoax = TestUtil.createValidHoax();
         ResponseEntity<ApiError> response = postHoax(hoax, ApiError.class);
         assertThat(response.getBody().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @Test
+    public void postHoax_whenHoaxIsValidAndUserIsAuthorized_hoaxSavedToDatabase() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        Hoax hoax = TestUtil.createValidHoax();
+        postHoax(hoax, Object.class);
+
+        assertThat(hoaxRepository.count()).isEqualTo(1L);
+    }
+
+    @Test
+    public void postHoax_whenHoaxIsValidAndUserIsAuthorized_hoaxSavedToDatabaseWithTimestamp() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        Hoax hoax = TestUtil.createValidHoax();
+        postHoax(hoax, Object.class);
+
+        Hoax inDB = hoaxRepository.findAll().get(0);
+
+        assertThat(inDB.getTimestamp()).isNotNull();
     }
 
     private <T> ResponseEntity<T> postHoax(Hoax hoax, Class<T> responseType) {
