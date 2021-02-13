@@ -55,7 +55,13 @@ public class HoaxController {
     }
 
     @GetMapping("/users/{username}/hoaxes/{id:[0-9]+}")
-    public Page<HoaxVM> getHoaxesRelativeForUser(@PathVariable String username, @PathVariable long id, Pageable pageable) {
-        return hoaxService.getHoaxesOfUser(id, username, pageable).map(HoaxVM::new);
+    public ResponseEntity<?> getHoaxesRelativeForUser(@PathVariable String username, @PathVariable long id, Pageable pageable,
+                                                 @RequestParam(name="direction", defaultValue = "after") String direction) {
+        if(!direction.equals("after")) {
+            return ResponseEntity.ok(hoaxService.getOldHoaxesOfUser(id, username, pageable).map(HoaxVM::new));
+        } else {
+            List<HoaxVM> newHoaxes = hoaxService.getNewHoaxesOfUser(id, username, pageable).stream().map(HoaxVM::new).collect(Collectors.toList());
+            return ResponseEntity.ok(newHoaxes);
+        }
     }
 }
