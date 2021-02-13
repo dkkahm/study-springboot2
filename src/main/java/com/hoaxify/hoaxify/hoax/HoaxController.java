@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.parameters.P;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -42,5 +43,10 @@ public class HoaxController {
     @GetMapping("/hoaxes/{id:[0-9]+}")
     Page<HoaxVM> getHoaxesRelative(@PathVariable long id, Pageable pageable) {
         return hoaxService.getOldHoaxes(id, pageable).map(HoaxVM::new);
+    }
+
+    @GetMapping("/users/{username}/hoaxes/{id:[0-9]+}")
+    public Page<HoaxVM> getHoaxesRelativeForUser(@PathVariable String username, @PathVariable long id, Pageable pageable) {
+        return hoaxService.getHoaxesOfUser(id, username, pageable).map(HoaxVM::new);
     }
 }
