@@ -43,9 +43,13 @@ public class FileUploadControllerTest {
     @Autowired
     AppConfiguration appConfiguration;
 
+    @Autowired
+    FileAttachmentRepository fileAttachmentRepository;
+
     @BeforeEach
     public void init() throws IOException {
         userRepository.deleteAll();
+        fileAttachmentRepository.deleteAll();
         testRestTemplate.getRestTemplate().getInterceptors().clear();
         FileUtils.cleanDirectory(new File(appConfiguration.getFullAttachmentPath()));
     }
@@ -99,6 +103,23 @@ public class FileUploadControllerTest {
         String imagePath = appConfiguration.getFullAttachmentPath() + "/" + response.getBody().getName();
         File storedImage = new File(imagePath);
         assertThat(storedImage.exists()).isTrue();
+    }
+
+    @Test
+    public void uploadFile_withImageFromAuthorizedUser_fileAttachmentSavedToDatabase() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        uploadFile(getRequestEntity(), FileAttachment.class);
+        assertThat(fileAttachmentRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    public void uploadFile_withImageFromAuthorizedUser_fileAttachmentSavedWithFileType() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        uploadFile(getRequestEntity(), FileAttachment.class);
+        FileAttachment storedFile = fileAttachmentRepository.findAll().get(0);
+        assertThat(storedFile.getFileType()).isEqualTo("image/png");
     }
 
     private HttpEntity<MultiValueMap<String, Object>> getRequestEntity() {
