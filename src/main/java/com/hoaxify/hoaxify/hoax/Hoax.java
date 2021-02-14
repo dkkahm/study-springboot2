@@ -28,6 +28,6 @@ public class Hoax {
     @ManyToOne
     private User user;
 
-    @OneToOne(mappedBy = "hoax")
+    @OneToOne(mappedBy = "hoax", orphanRemoval = true)
     private FileAttachment attachment;
 }

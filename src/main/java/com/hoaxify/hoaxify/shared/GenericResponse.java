@@ -6,10 +6,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class GenereicResponse {
+public class GenericResponse {
     private String message;
 
-    public GenereicResponse(String message) {
+    public GenericResponse(String message) {
         this.message = message;
     }
 }

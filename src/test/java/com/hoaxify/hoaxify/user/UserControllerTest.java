@@ -2,7 +2,7 @@ package com.hoaxify.hoaxify.user;
 
 import com.hoaxify.hoaxify.configuration.AppConfiguration;
 import com.hoaxify.hoaxify.error.ApiError;
-import com.hoaxify.hoaxify.shared.GenereicResponse;
+import com.hoaxify.hoaxify.shared.GenericResponse;
 import com.hoaxify.hoaxify.user.vm.UserUpdateVM;
 import com.hoaxify.hoaxify.user.vm.UserVM;
 import com.hoaxify.hoaxify.util.TestUtil;
@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,7 +85,7 @@ public class UserControllerTest {
     public void postUser_whenUserIsValid_receiveSuccessMessage() {
         User user = TestUtil.createValidUser();
 
-        ResponseEntity<GenereicResponse> response = postSignup(user, GenereicResponse.class);
+        ResponseEntity<GenericResponse> response = postSignup(user, GenericResponse.class);
 
         assertThat(response.getBody().getMessage()).isNotNull();
     }
