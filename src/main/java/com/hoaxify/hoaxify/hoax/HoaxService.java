@@ -36,31 +36,45 @@ public class HoaxService {
         return hoaxRepository.findByUser(inDB, pageable);
     }
 
-    public Page<Hoax> getOldHoaxes(long id, Pageable pageable) {
-        return hoaxRepository.findByIdLessThan(id, pageable);
-    }
-
-    public Page<Hoax> getOldHoaxesOfUser(long id, String username, Pageable pageable) {
+    public Page<Hoax> getOldHoaxes(long id, String username, Pageable pageable) {
+        if(username == null) {
+            return hoaxRepository.findByIdLessThan(id, pageable);
+        }
         User inDB = userService.getByUsername(username);
         return hoaxRepository.findByIdLessThanAndUser(id, inDB, pageable);
     }
 
-    public List<Hoax> getNewHoaxes(long id, Pageable pageable) {
-        return hoaxRepository.findByIdGreaterThan(id, pageable.getSort());
-    }
+//    public Page<Hoax> getOldHoaxesOfUser(long id, String username, Pageable pageable) {
+//        User inDB = userService.getByUsername(username);
+//        return hoaxRepository.findByIdLessThanAndUser(id, inDB, pageable);
+//    }
 
-    public List<Hoax> getNewHoaxesOfUser(long id, String username, Pageable pageable) {
+    public List<Hoax> getNewHoaxes(long id, String username, Pageable pageable) {
+        if(username == null) {
+            return hoaxRepository.findByIdGreaterThan(id, pageable.getSort());
+        }
+
         User inDB = userService.getByUsername(username);
         return hoaxRepository.findByIdGreaterThanAndUser(id, inDB, pageable.getSort());
     }
 
+//    public List<Hoax> getNewHoaxesOfUser(long id, String username, Pageable pageable) {
+//        User inDB = userService.getByUsername(username);
+//        return hoaxRepository.findByIdGreaterThanAndUser(id, inDB, pageable.getSort());
+//    }
 
-    public long getNewHoaxesCount(long id) {
-        return hoaxRepository.countByIdGreaterThan(id);
-    }
 
-    public long getNewHoaxesCountOfUser(long id, String username) {
+    public long getNewHoaxesCount(long id, String username) {
+        if(username == null) {
+            return hoaxRepository.countByIdGreaterThan(id);
+        }
+
         User inDB = userService.getByUsername(username);
         return hoaxRepository.countByIdGreaterThanAndUser(id, inDB);
     }
+
+//    public long getNewHoaxesCountOfUser(long id, String username) {
+//        User inDB = userService.getByUsername(username);
+//        return hoaxRepository.countByIdGreaterThanAndUser(id, inDB);
+//    }
 }
