@@ -138,45 +138,6 @@ public class FileUploadControllerTest {
         return testRestTemplate.exchange(API_1_0_HOAXES_UPLOAD, HttpMethod.POST, requestEntity, responseType);
     }
 
-    private <T> ResponseEntity<T> getHoaxes(ParameterizedTypeReference<T> responseType) {
-        return testRestTemplate.exchange(API_1_0_HOAXES_UPLOAD, HttpMethod.GET, null, responseType);
-    }
-
-    private <T> ResponseEntity<T> getHoaxesOfUser(String username, ParameterizedTypeReference<T> responseType) {
-        String path = "/api/1.0/users/" + username + "/hoaxes";
-        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
-    }
-
-    private <T> ResponseEntity<T> getOldHoaxes(long hoaxId, ParameterizedTypeReference<T> responseType) {
-        String path = API_1_0_HOAXES_UPLOAD + "/" + hoaxId + "?direction=before&page=0&size=5&sort=id,desc";
-        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
-    }
-
-    private <T> ResponseEntity<T> getOldHoaxesOfUser(long hoaxId, String username, ParameterizedTypeReference<T> responseType) {
-        String path = "/api/1.0/users/" + username + "/hoaxes/" + hoaxId + "?direction=before&page=0&size=5&sort=id,desc";
-        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
-    }
-
-    private <T> ResponseEntity<T> getNewHoaxes(long hoaxId, ParameterizedTypeReference<T> responseType) {
-        String path = API_1_0_HOAXES_UPLOAD + "/" + hoaxId + "?direction=after&sort=id,desc";
-        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
-    }
-
-    private <T> ResponseEntity<T> getNewHoaxesOfUser(long hoaxId, String username, ParameterizedTypeReference<T> responseType) {
-        String path = "/api/1.0/users/" + username + "/hoaxes/" + hoaxId + "?direction=after&sort=id,desc";
-        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
-    }
-
-    private <T> ResponseEntity<T> getNewHoaxCount(long hoaxId, ParameterizedTypeReference<T> responseType) {
-        String path = API_1_0_HOAXES_UPLOAD + "/" + hoaxId + "?direction=after&count=true";
-        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
-    }
-
-    private <T> ResponseEntity<T> getNewHoaxCountOfUser(long hoaxId, String username, ParameterizedTypeReference<T> responseType) {
-        String path = "/api/1.0/users/" + username + "/hoaxes/" + hoaxId + "?direction=after&count=true";
-        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
-    }
-
     private void authenticate(String username) {
         testRestTemplate.getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor(username, "P4ssword"));
     }

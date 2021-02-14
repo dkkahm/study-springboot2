@@ -12,11 +12,15 @@ public class HoaxVM {
     private String content;
     private long date;
     private UserVM user;
+    private FileAttachmentVM attachment;
 
     public HoaxVM(Hoax hoax) {
         this.setId(hoax.getId());
         this.setContent(hoax.getContent());
         this.setDate(hoax.getTimestamp().getTime());
         this.setUser(new UserVM(hoax.getUser()));
+        if(hoax.getAttachment() != null) {
+            this.setAttachment(new FileAttachmentVM(hoax.getAttachment()));
+        }
     }
 }
