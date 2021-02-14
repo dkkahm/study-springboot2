@@ -88,6 +88,19 @@ public class FileUploadControllerTest {
         assertThat(response.getBody().getName()).isNotEqualTo("profile.png");
     }
 
+    @Test
+    public void uploadFile_withImageFromAuthorizedUser_imageSavedToFolder() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = getRequestEntity();
+        ResponseEntity<FileAttachment> response = uploadFile(requestEntity, FileAttachment.class);
+
+        String imagePath = appConfiguration.getFullAttachmentPath() + "/" + response.getBody().getName();
+        File storedImage = new File(imagePath);
+        assertThat(storedImage.exists()).isTrue();
+    }
+
     private HttpEntity<MultiValueMap<String, Object>> getRequestEntity() {
         ClassPathResource imageResource = new ClassPathResource("profile.png");
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
